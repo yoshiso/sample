@@ -45,12 +45,19 @@ describe "AuthenticationPages" do
     describe "for non-signed-in users" do
       let(:user){FactoryGirl.create(:user)}
 
+      describe "home links" do
+        before{visit root_path}
+        it{should_not have_link('Profile',href:user_path(user))}
+        it{should_not have_link('Sign out',href:signout_path)}
+        it{should have_link('Sign in',href:signin_path)}
+        it{should_not have_link('Setting',href:edit_user_path(user))}
+        it{should_not have_link('Users',href:users_path)}
+      end
+
       describe "when attempt to cisit a protected page" do
         before do
+          sign_in user
           visit edit_user_path(user)
-          fill_in "Email", with:user.email
-          fill_in "Password", with:user.password
-          click_button "Sign in"
         end
 
         describe "after signining" do
@@ -107,6 +114,23 @@ describe "AuthenticationPages" do
         specify{response.should redirect_to(root_url)}
       end
     end
+
+    describe "signed-in user" do
+      let(:user){FactoryGirl.create(:user)}
+      before{sign_in user}
+
+      describe "when visit User#new" do
+        before{visit signup_path}
+        it{should have_selector('title',text:full_title(''))}
+      end
+
+      describe "when post User#create" do
+        before{post users_path(user)}
+        specify{response.should redirect_to root_path}
+      end
+
+    end
+
   end
 
 

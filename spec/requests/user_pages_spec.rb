@@ -114,7 +114,7 @@ describe "UserPages" do
     describe "page" do
       it{should have_selector('h1',text:"Update your profile")}
       it{should have_selector('title',text:"Edit user")}
-      it{should have_link('change',href:"http://gravatar.com/emails")}
+      it{should have_link('change',href:"http://gravatar.com/emails",target:"_blank")}
     end
 
     describe "with invalid information" do
@@ -143,6 +143,17 @@ describe "UserPages" do
     end
   end
 
+  describe "destroy" do
+    let(:admin){FactoryGirl.create(:admin)}
+    before do
+      sign_in admin
+      visit users_path
+    end
+
+    it "submmiting to User#destroy to delete admin user" do
+      expect{delete user_path(admin)}.not_to change(User,:count)
+    end
+  end
 end
 
 
