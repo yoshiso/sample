@@ -112,6 +112,17 @@ describe "UserPages" do
       it { should have_content(m2.content) }
       it { should have_content(user.microposts.count) }
     end
+
+    describe "delete link" do
+      context "other user's profile page" do
+        let(:other){FactoryGirl.create(:user)}
+        let!(:other_m){FactoryGirl.create(:micropost,user:other,content:"others")}
+        before{visit user_path(other)}
+
+        it {should have_content(other_m.content)}
+        it{should_not have_link('delete')}
+      end
+    end
   end
 
   describe "edit" do

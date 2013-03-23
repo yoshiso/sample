@@ -32,7 +32,7 @@ describe "StaticPages" do
     it_should_behave_like "all static pages"
     it {should_not have_selector('title',text:"| Home")}
 
-    describe "for signed_in users" do
+    context "for signed_in users" do
       let(:user){FactoryGirl.create(:user)}
       before do
         FactoryGirl.create(:micropost,user:user,content:"c1")
@@ -44,6 +44,23 @@ describe "StaticPages" do
       it "should render the user's feed" do
         user.feed.each do |item|
           page.should have_selector("li##{item.id}",text:item.content)
+        end
+      end
+
+      describe "sidebar" do
+        it{should have_selector('aside span',text:"#{user.microposts.count} #{"micropost".pluralize}")}
+      end
+
+      describe "feed" do
+        before(:all){30.times{FactoryGirl.create(:micropost,user:user)}}
+        after(:all){User.delete_all}
+  
+        it{should have_selector("div.pagination")}
+  
+        it "has pagination" do
+          user.feed.paginate(page: 1).each do |post|
+            page.should have_selector('li',text:post.content)
+          end
         end
       end
     end
